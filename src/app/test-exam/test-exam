@@ -1,0 +1,21 @@
+import { ExamGate } from '@/components/exam/ExamGate';
+
+export default function TestExamPage() {
+  return (
+    <div className="p-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-8 text-center">Тест на AI Изпита</h1>
+      
+      <ExamGate 
+        level="intern" 
+        isUnlocked={true}
+        onExamComplete={(score, passed) => {
+          if (passed) {
+            alert(`Браво! Премина с ${score}%!`);
+          } else {
+            alert(`Събрани ${score}%. Нужни са 70%.`);
+          }
+        }}
+      />
+    </div>
+  );
+}

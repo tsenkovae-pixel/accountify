@@ -1,0 +1,72 @@
+:root {
+  /* Primary - Royal Purple (вместо синьо) */
+  --primary-100: #F3E8FF;  /* светло лилаво */
+  --primary-200: #E9D5FF;
+  --primary-400: #A855F7;  /* средно лилаво */
+  --primary-500: #7C3AED;  /* основно лилаво */
+  --primary-600: #5B21B6;  /* тъмно лилаво - хедър */
+  --primary-700: #4C1D95;  /* много тъмно */
+  
+  /* Accent - Rich Gold (по-дълбоко злато) */
+  --accent-100: #FEF3C7;
+  --accent-400: #FCD34D;
+  --accent-500: #D4AF37;    /* класическо злато */
+  --accent-600: #B45309;    /* тъмно злато/мед */
+  
+  /* Backgrounds */
+  --bg-main: #FAF9F7;       /* топъл бял/крем - не чисто бял */
+  --bg-card: #FFFFFF;
+  --text-main: #2E1065;     /* тъмно лилав текст */
+  --text-muted: #6B7280;
+  
+  /* Shadows с лилава нотка */
+  --shadow-soft: 0 2px 8px rgba(91, 33, 182, 0.08);
+  --shadow-card: 0 4px 12px rgba(91, 33, 182, 0.12);
+  --shadow-glow: 0 0 20px rgba(212, 175, 55, 0.3); /* златно сияние */
+}
+
+/* Глобални стилове */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+/* За Simulator.tsx - конкретни класове */
+.simulator-container {
+  background: linear-gradient(135deg, #FAF9F7 0%, #F3E8FF 100%);
+  min-height: 100vh;
+}
+
+.purple-header {
+  background-color: var(--primary-600);
+  color: white;
+  box-shadow: var(--shadow-card);
+}
+
+.gold-button {
+  background: linear-gradient(135deg, #D4AF37 0%, #B45309 100%);
+  color: white;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: all 0.3s;
+}
+
+.gold-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.purple-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #E9D5FF;
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+.account-badge-asset { background: #EDE9FE; color: #5B21B6; border: 1px solid #DDD6FE; }
+.account-badge-expense { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }

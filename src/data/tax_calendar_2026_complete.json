@@ -1,0 +1,44 @@
+{
+  "year": 2026,
+  "deadlines": [
+    {
+      "id": "vat-01-2026",
+      "date": "2026-01-31",
+      "title": "ДДС декларация чл.92",
+      "category": "ДДС",
+      "description": "Подаване на декларация по чл.92 от ЗДДС за декември 2025",
+      "legalBasis": "чл.92, ал.1 ЗДДС",
+      "penalty": "500-2000 лв. за неподаване",
+      "isChallenge": true,
+      "challengeId": "vat-jan-2026",
+      "difficulty": "medium",
+      "xpReward": 150
+    },
+    {
+      "id": "profit-01-2026",
+      "date": "2026-01-31",
+      "title": "Авансов данък печалба",
+      "category": "Данък печалба",
+      "description": "Внасяне на авансов внос по чл.81 от ЗКПО",
+      "legalBasis": "чл.81 ЗКПО",
+      "penalty": "просрочени лихви",
+      "isChallenge": false
+    },
+    {
+      "id": "insurance-01-2026",
+      "date": "2026-01-25",
+      "title": "Осигурителни вноски",
+      "category": "Осигуровки",
+      "description": "Внасяне на осигурителни вноски за декември 2025",
+      "legalBasis": "чл.7, ал.1 КСО",
+      "penalty": "лихви за просрочка",
+      "isChallenge": true,
+      "challengeId": "insurance-jan-2026",
+      "difficulty": "easy",
+      "xpReward": 100
+    },
+    {
+      "id": "intrastat-01-2026",
+      "date": "2026-01-14",
+      "title": "Intrastat декларация",
+      "category": "Intrastat",
