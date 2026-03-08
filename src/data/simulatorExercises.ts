@@ -1,2 +1,3 @@
-import { simulatorExercises } from "./data/exercises";
+import { simulatorExercises } from "./exercises";
+
 export default simulatorExercises;
