@@ -202,23 +202,26 @@ function AccountSelect({
       )}
 
       {/* TOOLTIP */}
-      {hoveredAccount && accountLabels[hoveredAccount] && (
-        <div style={{
-          position: 'absolute',
-          bottom: 'calc(100% + 8px)',
-          left: 0,
-          right: 0,
-          background: '#1F2937',
-          color: 'white',
-          padding: '12px',
-          borderRadius: '8px',
-          fontSize: '13px',
-          zIndex: 60,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-        }}>
-          <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#FCD34D' }}>
-            {hoveredAccount} – {ACCOUNTS.find(a => a.code === hoveredAccount)?.name}
-          </div>
+{hoveredAccount && accountLabels[hoveredAccount] && (
+  <div style={{
+    position: 'absolute',
+    bottom: 'calc(100% + 8px)',
+    left: 0,
+    right: 0,
+    background: '#1F2937',
+    color: 'white',
+    padding: '12px',
+    borderRadius: '8px',
+    fontSize: '13px',
+    zIndex: 60,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+  }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#FCD34D' }}>
+      {hoveredAccount}
+    </div>
+    <div style={{ lineHeight: 1.4 }}>
+      {accountLabels[hoveredAccount]}
+    </div>
           <div style={{ lineHeight: 1.4 }}>
             {accountLabels[hoveredAccount]}
           </div>
