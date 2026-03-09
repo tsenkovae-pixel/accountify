@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { week1InternExercises } from '../data/exercises/week1Intern';
 import { week2JuniorExercises } from '../data/exercises/week2Junior';
+import { accountLabels } from '../data/config/accountLabels';
 
 // Types
 interface Task {
@@ -312,6 +313,160 @@ const convertExerciseToTask = (ex: any, index: number): Task => {
     ]
   };
 };
+
+// Компонент за избор на сметка с Tooltip
+function AccountSelect({ 
+  value, 
+  onChange, 
+  disabled, 
+  label 
+}: { 
+  value: string; 
+  onChange: (val: string) => void; 
+  disabled: boolean;
+  label: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [hoveredAccount, setHoveredAccount] = useState<string | null>(null);
+  
+  const selectedAccount = ACCOUNTS.find(a => a.code === value);
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
+        {label}
+      </label>
+      
+      {/* Custom Select Button */}
+      <button
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
+        style={{ 
+          width: '100%', 
+          padding: '12px', 
+          borderRadius: '8px', 
+          border: '2px solid #E5E7EB', 
+          fontSize: '14px', 
+          backgroundColor: disabled ? '#F3F4F6' : 'white',
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          textAlign: 'left'
+        }}
+      >
+        <span style={{ color: value ? '#111827' : '#9CA3AF' }}>
+          {value ? `${value} – ${selectedAccount?.name}` : 'Избери сметка...'}
+        </span>
+        <ChevronDown size={16} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
+      </button>
+
+      {/* Dropdown Menu */}
+      {isOpen && !disabled && (
+        <>
+          <div 
+            style={{ 
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              zIndex: 40 
+            }} 
+            onClick={() => setIsOpen(false)} 
+          />
+          <div style={{ 
+            position: 'absolute', 
+            top: 'calc(100% + 4px)', 
+            left: 0, right: 0, 
+            background: 'white', 
+            border: '2px solid #E5E7EB', 
+            borderRadius: '8px', 
+            maxHeight: '300px', 
+            overflow: 'auto',
+            zIndex: 50,
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+          }}>
+            {ACCOUNTS.map(account => (
+              <div
+                key={account.code}
+                onClick={() => {
+                  onChange(account.code);
+                  setIsOpen(false);
+                }}
+                onMouseEnter={() => setHoveredAccount(account.code)}
+                onMouseLeave={() => setHoveredAccount(null)}
+                style={{ 
+                  padding: '12px 16px', 
+                  cursor: 'pointer',
+                  backgroundColor: value === account.code ? '#F3E8FF' : hoveredAccount === account.code ? '#F9FAFB' : 'white',
+                  borderBottom: '1px solid #F3F4F6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}
+              >
+                <span style={{ 
+                  fontWeight: 'bold', 
+                  color: value === account.code ? '#5B21B6' : '#374151',
+                  minWidth: '40px'
+                }}>
+                  {account.code}
+                </span>
+                <span style={{ 
+                  color: value === account.code ? '#5B21B6' : '#6B7280',
+                  flex: 1
+                }}>
+                  {account.name}
+                </span>
+                {value === account.code && <CheckCircle size={16} color="#5B21B6" />}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Tooltip */}
+      {hoveredAccount && accountLabels[hoveredAccount] && (
+        <div style={{
+          position: 'absolute',
+          bottom: 'calc(100% + 8px)',
+          left: 0,
+          right: 0,
+          background: '#1F2937',
+          color: 'white',
+          padding: '12px',
+          borderRadius: '8px',
+          fontSize: '13px',
+          zIndex: 60,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#FCD34D' }}>
+            {hoveredAccount} – {ACCOUNTS.find(a => a.code === hoveredAccount)?.name}
+          </div>
+          <div style={{ lineHeight: 1.4 }}>
+            {accountLabels[hoveredAccount]}
+          </div>
+          <div style={{
+            position: 'absolute',
+            bottom: '-6px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 0,
+            height: 0,
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: '6px solid #1F2937'
+          }} />
+        </div>
+      )}
+
+      {/* Selected Account Name Below */}
+      {value && !isOpen && (
+        <div style={{ marginTop: '8px', fontSize: '13px', color: '#5B21B6' }}>
+          {selectedAccount?.name}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ЗАДАЧИТЕ - сега зареждаме от външни файлове
 const WEEKS_DATA: Week[] = [
@@ -901,7 +1056,7 @@ export default function AccountifySimulator() {
             )}
           </div>
 
-          {/* Right Column - Journal Entry */}
+          {/* Right Column - Journal Entry с Tooltips */}
           <div>
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #E5E7EB', position: 'sticky', top: '100px' }}>
               <h3 style={{ color: '#111827', margin: '0 0 24px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -910,55 +1065,21 @@ export default function AccountifySimulator() {
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {/* Debit */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                    Дебит (Дт)
-                  </label>
-                  <select 
-                    value={selectedDebit}
-                    onChange={(e) => setSelectedDebit(e.target.value)}
-                    disabled={showExplanation}
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #E5E7EB', fontSize: '14px', backgroundColor: showExplanation ? '#F3F4F6' : 'white' }}
-                  >
-                    <option value="">Избери сметка...</option>
-                    {ACCOUNTS.map(account => (
-                      <option key={account.code} value={account.code}>
-                        {account.code} – {account.name}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedDebit && (
-                    <div style={{ marginTop: '8px', fontSize: '13px', color: '#5B21B6' }}>
-                      {getAccountName(selectedDebit)}
-                    </div>
-                  )}
-                </div>
+                {/* Debit - Сега с Tooltip */}
+                <AccountSelect
+                  label="Дебит (Дт)"
+                  value={selectedDebit}
+                  onChange={setSelectedDebit}
+                  disabled={showExplanation}
+                />
 
-                {/* Credit */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                    Кредит (Кт)
-                  </label>
-                  <select 
-                    value={selectedCredit}
-                    onChange={(e) => setSelectedCredit(e.target.value)}
-                    disabled={showExplanation}
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #E5E7EB', fontSize: '14px', backgroundColor: showExplanation ? '#F3F4F6' : 'white' }}
-                  >
-                    <option value="">Избери сметка...</option>
-                    {ACCOUNTS.map(account => (
-                      <option key={account.code} value={account.code}>
-                        {account.code} – {account.name}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedCredit && (
-                    <div style={{ marginTop: '8px', fontSize: '13px', color: '#5B21B6' }}>
-                      {getAccountName(selectedCredit)}
-                    </div>
-                  )}
-                </div>
+                {/* Credit - Сега с Tooltip */}
+                <AccountSelect
+                  label="Кредит (Кт)"
+                  value={selectedCredit}
+                  onChange={setSelectedCredit}
+                  disabled={showExplanation}
+                />
 
                 {/* Amount */}
                 <div style={{ background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', border: '2px solid #F59E0B', borderRadius: '8px', padding: '16px', textAlign: 'center' }}>
