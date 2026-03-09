@@ -1,6 +1,7 @@
 'use client';
+
 import Link from 'next/link';
-import { Calculator, Sparkles, Trophy, Play, ChevronRight, CheckCircle, Shield, ArrowClockwise, CreditCard } from 'lucide-react';
+import { Calculator, Sparkles, Trophy, Play, ChevronRight, CheckCircle, Shield, RefreshCw, CreditCard } from 'lucide-react';
 import DailyQuote from '@/components/DailyQuote';
 import { useState } from 'react';
 
@@ -181,7 +182,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* PRICING SECTION - НОВО */}
+        {/* PRICING SECTION */}
         <div style={{ marginBottom: '60px' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <h2 style={{ color: '#3E2A9C', fontSize: '32px', fontWeight: 'bold', marginBottom: '16px' }}>
@@ -398,7 +399,7 @@ export default function Home() {
               <span>SSL Защита</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ArrowClockwise size={16} />
+              <RefreshCw size={16} />
               <span>30 дни гаранция</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
