@@ -5,10 +5,11 @@ import { Lock, Unlock, CheckCircle, XCircle, BookOpen, Building2, ChevronRight, 
 import { week1InternExercises } from '../data/exercises/week1Intern';
 import { week2JuniorExercises } from '../data/exercises/week2Junior';
 import { accountLabels } from '../data/config/accountLabels';
+import { markTaskComplete, canUnlockLevel, getCompletedCountForLevel } from '@/lib/progress';
 
 // Types
 interface Task {
-  id: number;
+  id: string;
   title: string;
   description: string;
   document: {
@@ -246,7 +247,7 @@ const convertExerciseToTask = (ex: any, index: number): Task => {
   const entry = isComplexEntry ? ex.correctEntry[0] : ex.correctEntry;
   
   return {
-    id: index + 1,
+    id: ex.id, // Променено от index + 1 на ex.id за ExamGate
     title: ex.title,
     description: ex.scenario,
     document: {
@@ -338,6 +339,7 @@ const WEEKS_DATA: Week[] = [
     const isCorrect = currentTaskData.correctEntry.some(entry => entry.debit === selectedDebit && entry.credit === selectedCredit);
     if (isCorrect) {
       setFeedback('correct');
+      markTaskComplete(currentTaskData.id); // Запазва прогреса за ExamGate
       setPlayerXP(prev => prev + currentTaskData.xpReward);
       setCompletedTasks(prev => [...prev, currentTaskData.id]);
     } else {
@@ -363,14 +365,24 @@ const WEEKS_DATA: Week[] = [
   };
 
   const startWeek = (weekIndex: number) => {
-    if (WEEKS_DATA[weekIndex].locked) {
-      setGameState('locked');
-      return;
-    }
-    setCurrentWeek(weekIndex);
-    setCurrentTask(0);
-    setGameState('playing');
-    resetTask();
+  // Проверка дали може да се отключи нивото (ExamGate)
+  const levelToUnlock = weekIndex + 1; // Седмица 1 = Ниво 1, Седмица 2 = Ниво 2
+  
+  if (levelToUnlock > 1 && !canUnlockLevel(levelToUnlock)) {
+    // Показва колко задачи са решени от предишната седмица
+    const completed = getCompletedCountForLevel(weekIndex); // Проверява Седмица 1 (индекс 0)
+    const total = 8; // Седмица 1 има 8 задачи
+    
+    alert(`🔒 Заключено!\n\nРешени ${completed} от ${total} задачи от Седмица ${weekIndex}.\n\nЗавърши всички задачи, за да отключиш тази седмица.`);
+    return; // Спира тук, не отваря седмицата
+  }
+
+  // Ако е отключено, продължава нормално
+  setCurrentWeek(weekIndex);
+  setCurrentTask(0);
+  setGameState('playing');
+  resetTask();
+};
   };
 
   // MENU VIEW
@@ -529,6 +541,16 @@ const WEEKS_DATA: Week[] = [
           </div>
         </div>
       </main>
+    </div>
+  );
+}
+
+function StatCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+  return (
+    <div style={{ background: 'white', borderRadius: '16px', padding: '32px', textAlign: 'center', boxShadow: '0 4px 20px rgba(62, 42, 156, 0.08)', border: '1px solid rgba(91, 63, 214, 0.1)' }}>
+      <div style={{ marginBottom: '16px' }}>{icon}</div>
+      <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#3E2A9C', marginBottom: '8px' }}>{title}</h3>
+      <p style={{ color: '#1F2937', fontSize: '14px', margin: 0 }}>{description}</p>
     </div>
   );
 }
