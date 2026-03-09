@@ -22,6 +22,8 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import { week1InternExercises } from '../data/exercises/week1Intern';
+import { week2JuniorExercises } from '../data/exercises/week2Junior';
 
 // Types
 interface Task {
@@ -270,582 +272,65 @@ const ROLES = [
   { level: 5, title: 'Финансов директор', xpNeeded: 3500, icon: '👑' }
 ];
 
-// ЗАДАЧИТЕ
+// Конвертиране на Exercise към Task формат
+const convertExerciseToTask = (ex: any, index: number): Task => {
+  const isComplexEntry = Array.isArray(ex.correctEntry);
+  const entry = isComplexEntry ? ex.correctEntry[0] : ex.correctEntry;
+  
+  return {
+    id: index + 1,
+    title: ex.title,
+    description: ex.scenario,
+    document: {
+      type: ex.documentType,
+      number: `№${String(index + 1).padStart(3, '0')}`,
+      counterparty: ex.counterparty,
+      details: ex.title,
+      amount: ex.amount,
+      vat: ex.vatAmount,
+      total: ex.totalAmount || ex.amount,
+      condition: ex.hint
+    },
+    correctEntry: isComplexEntry 
+      ? ex.correctEntry.map((e: any) => ({
+          debit: typeof e.debit === 'string' ? e.debit : e.debit[0],
+          credit: typeof e.credit === 'string' ? e.credit : e.credit[0],
+          debitAccount: ACCOUNTS.find(a => a.code === (typeof e.debit === 'string' ? e.debit : e.debit[0]))?.name || e.debit,
+          creditAccount: ACCOUNTS.find(a => a.code === (typeof e.credit === 'string' ? e.credit : e.credit[0]))?.name || e.credit,
+          explanation: ex.explanation
+        }))
+      : [{
+          debit: entry.debit,
+          credit: entry.credit,
+          debitAccount: ACCOUNTS.find(a => a.code === entry.debit)?.name || entry.debit,
+          creditAccount: ACCOUNTS.find(a => a.code === entry.credit)?.name || entry.credit,
+          explanation: ex.explanation
+        }],
+    xpReward: 50 + (ex.level === 'junior' ? 25 : 0),
+    financialImpact: [
+      { description: 'Операция', value: ex.amount }
+    ]
+  };
+};
+
+// ЗАДАЧИТЕ - сега зареждаме от външни файлове
 const WEEKS_DATA: Week[] = [
   {
     id: 1,
     title: 'СЕДМИЦА 1',
     subtitle: 'Основи',
-    story: 'Фирма Атрой Финанс ЕООД започва дейност. Капиталът се внася по банков път!',
+    story: 'Фирма Пиксел Солюшънс ООД започва дейност. Капиталът се внася по банков път!',
     locked: false,
-    tasks: [
-      {
-        id: 1,
-        title: 'Внасяне на капитал',
-        description: 'Основателят внася 10,000 лв. по банкова сметка като основен капитал.',
-        document: {
-          type: 'Банков документ',
-          number: 'КВ №001',
-          counterparty: 'Собственик',
-          details: 'Внасяне на основен капитал',
-          amount: 10000,
-          total: 10000,
-        },
-        correctEntry: [{
-          debit: '503',
-          credit: '101',
-          debitAccount: 'Разплащателна сметка',
-          creditAccount: 'Основен капитал',
-          explanation: 'Увеличаваме парите в банката (Дт 503) и отчитаме капитала (Кт 101)'
-        }],
-        xpReward: 50,
-        financialImpact: [
-          { description: 'Пари в банка', value: 10000 },
-          { description: 'Капитал', value: 10000 }
-        ]
-      },
-      {
-        id: 2,
-        title: 'Теглене от банка',
-        description: 'Теглене на пари от банка за каса',
-        document: {
-          type: 'Касов ордер',
-          number: 'КО №001',
-          counterparty: 'Банка',
-          details: 'Теглене на пари в брой',
-          amount: 2000,
-          total: 2000,
-        },
-        correctEntry: [{
-          debit: '501',
-          credit: '503',
-          debitAccount: 'Каса',
-          creditAccount: 'Разплащателна сметка',
-          explanation: 'Увеличаваме касата (Дт 501) и намаляваме банката (Кт 503)'
-        }],
-        xpReward: 50,
-        financialImpact: [
-          { description: 'Каса', value: 2000 },
-          { description: 'Банкова сметка', value: -2000 }
-        ]
-      },
-      {
-        id: 3,
-        title: 'Покупка на материали',
-        description: 'Фактура за канцеларски материали',
-        document: {
-          type: 'Фактура',
-          number: '№100',
-          counterparty: 'Офис Снабдяване ООД',
-          details: 'Канцеларски материали',
-          amount: 300,
-          vat: 60,
-          total: 360,
-          condition: 'покупка на кредит'
-        },
-        correctEntry: [
-          { debit: '601', credit: '4531', debitAccount: 'Разходи', creditAccount: 'ДДС покупки', explanation: 'Отчитаме разхода и ДДС' },
-          { debit: '601', credit: '401', debitAccount: 'Разходи', creditAccount: 'Доставчици', explanation: 'Дължим на доставчика' }
-        ],
-        commonMistake: { account: '302', explanation: '302 са стоки за препродажба, не консумативи (601)' },
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Разходи', value: 300 },
-          { description: 'ДДС', value: 60 },
-          { description: 'Задължения', value: 360 }
-        ]
-      },
-      {
-        id: 4,
-        title: 'Плащане към доставчик',
-        description: 'Плащане по банка',
-        document: {
-          type: 'Платежно нареждане',
-          number: 'ПН №001',
-          counterparty: 'Офис Снабдяване ООД',
-          details: 'Плащане на фактура №100',
-          amount: 360,
-          total: 360,
-        },
-        correctEntry: [{
-          debit: '401',
-          credit: '503',
-          debitAccount: 'Доставчици',
-          creditAccount: 'Разплащателна сметка',
-          explanation: 'Намаляваме задължението и парите в банка'
-        }],
-        xpReward: 50,
-        financialImpact: [
-          { description: 'Задължения', value: -360 },
-          { description: 'Банка', value: -360 }
-        ]
-      },
-      {
-        id: 5,
-        title: 'Покупка на компютър',
-        description: 'Покупка на компютър за офиса',
-        document: {
-          type: 'Фактура',
-          number: '№105',
-          counterparty: 'Техно Магазин ООД',
-          details: 'Компютър и периферия',
-          amount: 2000,
-          vat: 400,
-          total: 2400,
-        },
-        correctEntry: [
-          { debit: '203', credit: '4531', debitAccount: 'Компютърна техника', creditAccount: 'ДДС покупки', explanation: 'Отчитаме актива и ДДС' },
-          { debit: '203', credit: '401', debitAccount: 'Компютърна техника', creditAccount: 'Доставчици', explanation: 'Дължим на доставчика' }
-        ],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Компютър', value: 2000 },
-          { description: 'ДДС', value: 400 },
-          { description: 'Задължения', value: 2400 }
-        ]
-      },
-      {
-        id: 6,
-        title: 'Плащане на компютъра',
-        description: 'Банков превод',
-        document: {
-          type: 'Платежно нареждане',
-          number: 'ПН №002',
-          counterparty: 'Техно Магазин ООД',
-          details: 'Плащане на фактура №105',
-          amount: 2400,
-          total: 2400,
-        },
-        correctEntry: [{
-          debit: '401',
-          credit: '503',
-          debitAccount: 'Доставчици',
-          creditAccount: 'Разплащателна сметка',
-          explanation: 'Заплащане на задължението'
-        }],
-        xpReward: 50,
-        financialImpact: [
-          { description: 'Задължения', value: -2400 },
-          { description: 'Банка', value: -2400 }
-        ]
-      },
-      {
-        id: 7,
-        title: 'Фактура за наем',
-        description: 'Фактура за офис наем',
-        document: {
-          type: 'Фактура',
-          number: '№200',
-          counterparty: 'Сити Пропъртис ООД',
-          details: 'Наем офис за месец',
-          amount: 1000,
-          vat: 200,
-          total: 1200,
-        },
-        correctEntry: [
-          { debit: '602', credit: '4531', debitAccount: 'Разходи за услуги', creditAccount: 'ДДС покупки', explanation: 'Разход за наем' },
-          { debit: '602', credit: '401', debitAccount: 'Разходи за услуги', creditAccount: 'Доставчици', explanation: 'Задължение към наемодателя' }
-        ],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Разходи', value: 1000 },
-          { description: 'ДДС', value: 200 },
-          { description: 'Задължения', value: 1200 }
-        ]
-      },
-      {
-        id: 8,
-        title: 'Плащане на наема',
-        description: 'Банково плащане',
-        document: {
-          type: 'Платежно нареждане',
-          number: 'ПН №003',
-          counterparty: 'Сити Пропъртис ООД',
-          details: 'Наем',
-          amount: 1200,
-          total: 1200,
-        },
-        correctEntry: [{
-          debit: '401',
-          credit: '503',
-          debitAccount: 'Доставчици',
-          creditAccount: 'Разплащателна сметка',
-          explanation: 'Заплащане на наема'
-        }],
-        xpReward: 50,
-        financialImpact: [
-          { description: 'Задължения', value: -1200 },
-          { description: 'Банка', value: -1200 }
-        ]
-      },
-      {
-        id: 9,
-        title: 'Фактура за интернет',
-        description: 'Фактура за интернет',
-        document: {
-          type: 'Фактура',
-          number: '№305',
-          counterparty: 'Нет Провайдър ООД',
-          details: 'Интернет',
-          amount: 150,
-          vat: 30,
-          total: 180,
-        },
-        correctEntry: [
-          { debit: '602', credit: '4531', debitAccount: 'Разходи', creditAccount: 'ДДС покупки', explanation: 'Разходи за комуникации' },
-          { debit: '602', credit: '401', debitAccount: 'Разходи', creditAccount: 'Доставчици', explanation: 'Задължение' }
-        ],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Разходи', value: 150 },
-          { description: 'ДДС', value: 30 },
-          { description: 'Задължения', value: 180 }
-        ]
-      },
-      {
-        id: 10,
-        title: 'Плащане на интернет',
-        description: 'Плащане по банка',
-        document: {
-          type: 'Платежно нареждане',
-          number: 'ПН №004',
-          counterparty: 'Нет Провайдър ООД',
-          details: 'Интернет',
-          amount: 180,
-          total: 180,
-        },
-        correctEntry: [{
-          debit: '401',
-          credit: '503',
-          debitAccount: 'Доставчици',
-          creditAccount: 'Разплащателна сметка',
-          explanation: 'Заплащане'
-        }],
-        xpReward: 50,
-        financialImpact: [
-          { description: 'Задължения', value: -180 },
-          { description: 'Банка', value: -180 }
-        ]
-      }
-    ]
+    tasks: week1InternExercises.map((ex, i) => convertExerciseToTask(ex, i))
   },
   {
     id: 2,
     title: 'СЕДМИЦА 2',
-    subtitle: 'Покупки и продажби',
-    story: 'Фирмата започва активна търговска дейност. Трябва да осчетоводиш стоки, продажби и клиенти.',
+    subtitle: 'Покупки и продажби с ДДС',
+    story: 'Фирмата започва активна търговска дейност с ДДС, ЕС операции и износ.',
     locked: true,
     requiredLevel: 2,
-    tasks: [
-      {
-        id: 11,
-        title: 'Покупка на стоки',
-        description: 'Покупка на търговски стоки',
-        document: {
-          type: 'Фактура',
-          number: '№500',
-          counterparty: 'Търговия ООД',
-          details: 'Стоки за препродажба',
-          amount: 5000,
-          vat: 1000,
-          total: 6000,
-          condition: 'покупка на кредит'
-        },
-        correctEntry: [
-          { debit: '305', credit: '4531', debitAccount: 'Стоки', creditAccount: 'ДДС покупки', explanation: 'Стоките са актив' },
-          { debit: '305', credit: '401', debitAccount: 'Стоки', creditAccount: 'Доставчици', explanation: 'Дължим с ДДС' }
-        ],
-        commonMistake: { account: '601', explanation: '601 е за материали, 305 е за стоки' },
-        xpReward: 100,
-        financialImpact: [
-          { description: 'Стоки', value: 5000 },
-          { description: 'ДДС', value: 1000 },
-          { description: 'Задължения', value: 6000 }
-        ]
-      },
-      {
-        id: 12,
-        title: 'Частично плащане',
-        description: 'Частично плащане към доставчик',
-        document: {
-          type: 'Платежно нареждане',
-          number: 'ПН №010',
-          counterparty: 'Търговия ООД',
-          details: 'Частично плащане',
-          amount: 3000,
-          total: 3000,
-        },
-        correctEntry: [{
-          debit: '401',
-          credit: '503',
-          debitAccount: 'Доставчици',
-          creditAccount: 'Банка',
-          explanation: 'Намаляваме задължението'
-        }],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Задължения', value: -3000 },
-          { description: 'Банка', value: -3000 }
-        ]
-      },
-      {
-        id: 13,
-        title: 'Изплащане на остатък',
-        description: 'Остатък към доставчик',
-        document: {
-          type: 'Платежно нареждане',
-          number: 'ПН №011',
-          counterparty: 'Търговия ООД',
-          details: 'Остатък',
-          amount: 3000,
-          total: 3000,
-        },
-        correctEntry: [{
-          debit: '401',
-          credit: '503',
-          debitAccount: 'Доставчици',
-          creditAccount: 'Банка',
-          explanation: 'Заплащане на остатъка'
-        }],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Задължения', value: -3000 },
-          { description: 'Банка', value: -3000 }
-        ]
-      },
-      {
-        id: 14,
-        title: 'Продажба на стоки',
-        description: 'Продажба на клиент',
-        document: {
-          type: 'Фактура',
-          number: '№001',
-          counterparty: 'Клиент ООД',
-          details: 'Продажба на стоки',
-          amount: 8000,
-          vat: 1600,
-          total: 9600,
-        },
-        correctEntry: [
-          { debit: '411', credit: '702', debitAccount: 'Клиенти', creditAccount: 'Приходи от стоки', explanation: 'Клиентът ни дължи' },
-          { debit: '411', credit: '4532', debitAccount: 'Клиенти', creditAccount: 'ДДС продажби', explanation: 'ДДС за плащане' }
-        ],
-        xpReward: 100,
-        financialImpact: [
-          { description: 'Вземания', value: 9600 },
-          { description: 'Приходи', value: 8000 },
-          { description: 'ДДС', value: 1600 }
-        ]
-      },
-      {
-        id: 15,
-        title: 'Постъпление от клиент',
-        description: 'Плащане по банка',
-        document: {
-          type: 'Банков документ',
-          number: 'КВ №050',
-          counterparty: 'Клиент ООД',
-          details: 'Плащане по фактура №001',
-          amount: 9600,
-          total: 9600,
-        },
-        correctEntry: [{
-          debit: '503',
-          credit: '411',
-          debitAccount: 'Банка',
-          creditAccount: 'Клиенти',
-          explanation: 'Увеличаваме парите, намаляваме вземането'
-        }],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Банка', value: 9600 },
-          { description: 'Вземания', value: -9600 }
-        ]
-      },
-      {
-        id: 16,
-        title: 'Продажба на услуга',
-        description: 'Консултантска услуга',
-        document: {
-          type: 'Фактура',
-          number: '№002',
-          counterparty: 'Фирма ЕООД',
-          details: 'Счетоводна консултация',
-          amount: 2000,
-          vat: 400,
-          total: 2400,
-        },
-        correctEntry: [
-          { debit: '411', credit: '703', debitAccount: 'Клиенти', creditAccount: 'Приходи от услуги', explanation: 'Приход от услуги' },
-          { debit: '411', credit: '4532', debitAccount: 'Клиенти', creditAccount: 'ДДС продажби', explanation: 'ДДС' }
-        ],
-        xpReward: 100,
-        financialImpact: [
-          { description: 'Вземания', value: 2400 },
-          { description: 'Приходи', value: 2000 },
-          { description: 'ДДС', value: 400 }
-        ]
-      },
-      {
-        id: 17,
-        title: 'Касово плащане',
-        description: 'Клиент плаща в брой',
-        document: {
-          type: 'Касов ордер',
-          number: 'КО №020',
-          counterparty: 'Фирма ЕООД',
-          details: 'Плащане на фактура №002',
-          amount: 2400,
-          total: 2400,
-        },
-        correctEntry: [{
-          debit: '501',
-          credit: '411',
-          debitAccount: 'Каса',
-          creditAccount: 'Клиенти',
-          explanation: 'Увеличаваме касата'
-        }],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Каса', value: 2400 },
-          { description: 'Вземания', value: -2400 }
-        ]
-      },
-      {
-        id: 18,
-        title: 'Транспортни разходи',
-        description: 'Фактура за транспорт',
-        document: {
-          type: 'Фактура',
-          number: '№600',
-          counterparty: 'Спедитор ЕООД',
-          details: 'Транспортни услуги',
-          amount: 500,
-          vat: 100,
-          total: 600,
-        },
-        correctEntry: [
-          { debit: '602', credit: '4531', debitAccount: 'Разходи', creditAccount: 'ДДС покупки', explanation: 'Транспортни разходи' },
-          { debit: '602', credit: '401', debitAccount: 'Разходи', creditAccount: 'Доставчици', explanation: 'Задължение' }
-        ],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Разходи', value: 500 },
-          { description: 'ДДС', value: 100 },
-          { description: 'Задължения', value: 600 }
-        ]
-      }
-    ]
-  },
-  {
-    id: 3,
-    title: 'СЕДМИЦА 3',
-    subtitle: 'Разширени операции',
-    story: 'Научаваш заплати, осигуровки и амортизация. Необходимо ниво: Старши (1000 XP).',
-    locked: true,
-    requiredLevel: 3,
-    tasks: [
-      {
-        id: 19,
-        title: 'Начисляване на заплата',
-        description: 'Заплата на управител',
-        document: {
-          type: 'Разчетна ведомост',
-          number: '№1',
-          counterparty: 'Персонал',
-          details: 'Заплата управител',
-          amount: 3000,
-          total: 3000,
-        },
-        correctEntry: [{
-          debit: '604',
-          credit: '421',
-          debitAccount: 'Разходи за заплати',
-          creditAccount: 'Задължения към персонал',
-          explanation: 'Начисляваме заплата'
-        }],
-        xpReward: 100,
-        financialImpact: [
-          { description: 'Разходи', value: 3000 },
-          { description: 'Задължения', value: 3000 }
-        ]
-      },
-      {
-        id: 20,
-        title: 'Начисляване на осигуровки',
-        description: 'Осигуровки работодател',
-        document: {
-          type: 'Осигурителна ведомост',
-          number: '№1',
-          counterparty: 'НОИ',
-          details: 'Осигуровки',
-          amount: 750,
-          total: 750,
-        },
-        correctEntry: [{
-          debit: '605',
-          credit: '461',
-          debitAccount: 'Разходи за осигуровки',
-          creditAccount: 'Социално осигуряване',
-          explanation: 'Начисляваме осигуровки'
-        }],
-        xpReward: 100,
-        financialImpact: [
-          { description: 'Разходи', value: 750 },
-          { description: 'Задължения към НОИ', value: 750 }
-        ]
-      },
-      {
-        id: 21,
-        title: 'Амортизация на компютър',
-        description: 'Месечна амортизация',
-        document: {
-          type: 'Амортизационна ведомост',
-          number: '№1',
-          counterparty: '-',
-          details: 'Амортизация компютър',
-          amount: 100,
-          total: 100,
-        },
-        correctEntry: [{
-          debit: '603',
-          credit: '241',
-          debitAccount: 'Разходи за амортизация',
-          creditAccount: 'Амортизация ДМА',
-          explanation: 'Начисляваме амортизация'
-        }],
-        xpReward: 125,
-        financialImpact: [
-          { description: 'Разходи', value: 100 },
-          { description: 'Амортизация', value: -100 }
-        ]
-      },
-      {
-        id: 22,
-        title: 'Плащане на заплата',
-        description: 'Банков превод',
-        document: {
-          type: 'Платежно нареждане',
-          number: 'ПН №100',
-          counterparty: 'Управител',
-          details: 'Заплата',
-          amount: 2500,
-          total: 2500,
-        },
-        correctEntry: [{
-          debit: '421',
-          credit: '503',
-          debitAccount: 'Задължения към персонал',
-          creditAccount: 'Банка',
-          explanation: 'Плащаме заплатата (нето)'
-        }],
-        xpReward: 75,
-        financialImpact: [
-          { description: 'Задължения', value: -2500 },
-          { description: 'Банка', value: -2500 }
-        ]
-      }
-    ]
+    tasks: week2JuniorExercises.map((ex, i) => convertExerciseToTask(ex, i + 10))
   }
 ];
 
@@ -1299,7 +784,7 @@ export default function AccountifySimulator() {
                     <Building2 size={24} />
                   </div>
                   <div>
-                    <h3 style={{ margin: '0 0 8px 0' }}>Атрой Финанс ООД</h3>
+                    <h3 style={{ margin: '0 0 8px 0' }}>Пиксел Солюшънс ООД</h3>
                     <p style={{ margin: 0, opacity: 0.9 }}>{currentWeekData.story}</p>
                   </div>
                 </div>
