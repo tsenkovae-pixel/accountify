@@ -1,5 +1,4 @@
-
-    },import type { Exercise } from "../../types/accounting";
+import type { Exercise } from "../../types/accounting";
 
 export const week1InternExercises: Exercise[] = [
   {
@@ -185,7 +184,7 @@ export const week1InternExercises: Exercise[] = [
     week: 1,
     order: 9,
     mode: "story",
-    category: "personnel",
+    category: "expenses",
     documentType: "Касов ордер",
     counterparty: "Служител",
     currency: "BGN",
